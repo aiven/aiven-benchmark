@@ -36,5 +36,24 @@ You can start a single instance of the load generator with the following command
         --rm \
         aiven-benchmark-kafka-load-generator
 
+Substitute the placeholder values with your correct token, project, service and the target topic.
+
 Tip: you can use e.g. managed Kubernetes service to scale up number of load generators until you reach the saturation point.
 
+## Result reader
+
+### Build local Docker image
+
+    docker build -t aiven-benchmark-kafka-result-reader result_reader
+
+### Collecting the results
+
+You can start result reader instance with the following command:
+
+    docker run \
+        -e AIVEN_TOKEN="TOKENDATA" \
+        -e AIVEN_PROJECT="htn-aiven-demo" \
+        -e AIVEN_SERVICE="t-kafka" \
+        -e AIVEN_TOPIC="t-topic" \
+        --rm \
+        aiven-benchmark-kafka-result-reader
