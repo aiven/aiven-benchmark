@@ -13,7 +13,7 @@ def main():
 
     # Setup Aiven SDK
     logger.info("Setting up Aiven SDK")
-    client = AivenClient("https://api.aiven.io")
+    client = AivenClient(os.environ.get("AIVEN_URL") or "https://api.aiven.io")
     client.set_auth_token(os.environ["AIVEN_TOKEN"])
 
     # Lookup the target service
@@ -51,6 +51,8 @@ def main():
 
     logger.info("Start result collection loop, break with CTRL-C")
     readings = []
+    readings_60 = []
+    readings_300 = []
     while True:
         delta = 0
         result = kafka_client.end_offsets(tps)
@@ -64,8 +66,17 @@ def main():
 
         readings.append(messages_per_second)
         readings = readings[-30:]
+        readings_60.append(messages_per_second)
+        readings_60 = readings_60[-60:]
+        readings_300.append(messages_per_second)
+        readings_300 = readings_300[-300:]
 
-        logger.info("%d messages/s, 30 sample average %d messages/s", messages_per_second, sum(readings)/len(readings))
+        logger.info("%d messages/s, %d sample average %d messages/s, %d: %d m/s, %d: %d m/s",
+            messages_per_second,
+            len(readings), sum(readings)/len(readings),
+            len(readings_60), sum(readings_60)/len(readings_60),
+            len(readings_300), sum(readings_300)/len(readings_300),
+            )
         last_timestamp = timenow
         time.sleep(2)
 
